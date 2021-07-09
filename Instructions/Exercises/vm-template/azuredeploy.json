@@ -2,58 +2,122 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-       "vmName": {
-         "type": "string",
-         "metadata": {
-              "description": "description"
-          }
-      },
-      "nicName": {
-         "type": "string",
-         "metadata": {
-              "description": "description"
-          }
-      },
-      "vmSize": {
-        "type": "string",
-        "defaultValue": "Standard_DS1_v2",
-        "metadata": {
-          "description": "Virtual machine size"
+        "namePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Prefix resources with this string"
+            },
+            "defaultValue": "az700"
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Admin Username used for all VMs"
+            },
+            "defaultValue": "TestUser"
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Admin Password used for all VMs"
+            },
+            "defaultValue": "TestPa$$w0rd!"
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS1_v2",
+            "metadata": {
+                "description": "Virtual machine size"
+            }
+        },
+        "vmCount": {
+            "type": "int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "The number of VMs required"
+            }
         }
-      },
-      "adminUsername": {
-        "type": "string",
-        "metadata": {
-          "description": "Admin username"
-        }
-      },
-      "adminPassword": {
-        "type": "securestring",
-        "metadata": {
-          "description": "Admin password"
-        }
-      }
     },
-  "variables": {
-    "virtualNetworkName": "IntLB-VNet",
-    "nsgName": "myNSG",
-    "subnetName": "myBackendSubnet",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
-    "computeApiVersion": "2018-06-01",
-    "networkApiVersion": "2018-08-01"
-  },
+    "variables": {
+        "vmNamePrefix": "[concat(parameters('namePrefix'), '-vm')]",
+        "nicNamePrefix": "[concat(parameters('namePrefix'), '-nic')]",
+        "virtualNetworkName": "IntLB-VNet",
+        "nsgName": "myNSG",
+        "subnetName": "myBackendSubnet",
+        "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
+        "computeApiVersion": "2018-06-01",
+        "networkApiVersion": "2018-08-01"
+    },
     "resources": [
         {
-            "name": "[parameters('vmName')]",
+            "name": "[variables('nsgName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[resourceGroup().location]",
+            "comments": "Network Security Group (NSG) for Primary NIC",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "default-allow-rdp",
+                        "properties": {
+                            "priority": 1000,
+                            "sourceAddressPrefix": "*",
+                            "protocol": "Tcp",
+                            "destinationPortRange": "3389",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "copy": {
+                "name": "nicCopy",
+                "count": "[parameters('vmCount')]"
+            },
+            "name": "[concat(variables('nicNamePrefix'), copyIndex())]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "[variables('networkApiVersion')]",
+            "location": "[resourceGroup().location]",
+            "comments": "Primary NIC",
+            "dependsOn": [
+                "[variables('nsgName')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+                }
+            }
+        },
+        {
+            "copy": {
+                "name": "vmCopy",
+                "count": "[parameters('vmCount')]"
+            },
+            "name": "[concat(variables('vmNamePrefix'), copyIndex())]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "[variables('computeApiVersion')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[parameters('nicName')]"
+                "[concat(variables('nicNamePrefix'), copyIndex())]"
             ],
             "properties": {
                 "osProfile": {
-                    "computerName": "[parameters('vmName')]",
+                    "computerName": "[concat(variables('vmNamePrefix'), copyIndex())]",
                     "adminUsername": "[parameters('adminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
@@ -81,85 +145,34 @@
                             "properties": {
                                 "primary": true
                             },
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('nicNamePrefix'), copyIndex()))]"
                         }
                     ]
                 }
             },
             "resources": [
-          {
-            "apiVersion": "2018-06-01",
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('vmName'),'/', 'VMConfig')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/',parameters('vmName'))]"
-            ],
-            "properties": {
-                "publisher": "Microsoft.Compute",
-                "type": "CustomScriptExtension",
-                "typeHandlerVersion": "1.7",
-                "autoUpgradeMinorVersion":true,
-                "settings": {
-                    "fileUris": [
-                       "https://raw.githubusercontent.com/tiagocostapt/az-700-labs/master/install-iis.ps1"
+                {
+                    "apiVersion": "2018-06-01",
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(variables('vmNamePrefix'), copyIndex(), '/', 'VMConfig')]",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmNamePrefix'), copyIndex())]"
                     ],
-                    "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File install-iis.ps1"
-                }
-            }
-        }
-        ]
-            
-        },
-        {
-            "name": "[parameters('nicName')]",
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "location": "[resourceGroup().location]",
-            "comments": "Primary NIC",
-            "dependsOn": [
-                "[variables('nsgName')]"
-            ],
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "subnet": {
-                                "id": "[variables('subnetRef')]"
-                            },
-                            "privateIPAllocationMethod": "Dynamic"
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.7",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/tiagocostapt/az-700-labs/master/install-iis.ps1"
+                            ],
+                            "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File install-iis.ps1"
                         }
                     }
-                ],
-                "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
                 }
-            }
-        },
-        {
-            "name": "[variables('nsgName')]",
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "location": "[resourceGroup().location]",
-            "comments": "Network Security Group (NSG) for Primary NIC",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "default-allow-rdp",
-                        "properties": {
-                            "priority": 1000,
-                            "sourceAddressPrefix": "*",
-                            "protocol": "Tcp",
-                            "destinationPortRange": "3389",
-                            "access": "Allow",
-                            "direction": "Inbound",
-                            "sourcePortRange": "*",
-                            "destinationAddressPrefix": "*"
-                        }
-                    }
-                ]
-            }
+            ]
         }
     ],
     "outputs": {}
