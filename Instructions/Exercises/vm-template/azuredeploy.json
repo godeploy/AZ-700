@@ -166,7 +166,7 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/tiagocostapt/az-700-labs/master/install-iis.ps1"
+                                "https://raw.githubusercontent.com/godeploy/AZ-700/master/Instructions/Exercises/vm-template/install-iis.ps1"
                             ],
                             "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File install-iis.ps1"
                         }
