@@ -1,6 +1,6 @@
 ---
 Exercise:
-    title: 'M01 - Unit 6 Configure DNS settings in azure'
+    title: 'M01-Unit 6 Configure DNS settings in Azure'
     module: 'Module - Introduction to Azure Virtual Networks'
 ---
 
@@ -21,7 +21,7 @@ In this exercise, you will:
 
 1. Go to [Azure Portal](https://portal.azure.com/).
 
-2. On the Azure home page, in the search bar, type dns, and then select **Private DNS zones**.  
+2. On the Azure home page, in the search bar, enter dns, and then select **Private DNS zones**.  
    ‎![Azure Portal home page with dns search.](../media/create-private-dns-zone.png)
 
 3. In Private DNS zones, select **+ Create**.
@@ -99,95 +99,21 @@ In this exercise, you will:
 
 In this section, you will create two test VMs to test the Private DNS zone configuration.
 
-### Create TestVM1
+1. In the Azure portal, open the **PowerShell** session within the **Cloud Shell** pane.
 
-1. On the Azure home page, select **Virtual Machines**.
+2. In the toolbar of the Cloud Shell pane, select the Upload/Download files icon, in the drop-down menu, select Upload and upload the following files **azuredeploy.json** and **azuredeploy.parameters.json** into the Cloud Shell home directory from the source folder **F:\Allfiles\Exercises\M01**.
 
-2. In Virtual Machines, select **+ Add &gt; + Start with a preset configuration**.
+3. Deploy the following ARM templates to create the VMs needed for this exercise:
 
-![Virtual machines with + Add and + Start with a preset configuration highlighted.](../media/add-virtual-machine-preset.png)
+   ```powershell
+   $RGName = "ContosoResourceGroup"
+   
+   New-AzResourceGroupDeployment -ResourceGroupName $RGName -TemplateFile azuredeploy.json -TemplateParameterFile azuredeploy.parameters.json
+   ```
+  
+4. When the deployment is complete, go to the Azure portal home page, and then select **Virtual Machines**.
 
-3. In Choose recommended defaults that match your workload, under **Select a workload environment**, select **Dev/Test**.
-
-4. Under **Select a workload type**, select **General purpose (D-Series)**, and then select **Continue to create a VM**.
-
-5. Use the information in the following table to create your first VM.
-
-| **Tab**         | **Option**                                                   | **Value**                             |
-| --------------- | ------------------------------------------------------------ | ------------------------------------- |
-| Basics          | Resource group                                               | ContosoResourceGroup                  |
-|                 | Virtual machine name                                         | TestVM1                               |
-|                 | Region                                                       | (US) West US                          |
-|                 | Availability options                                         | No infrastructure redundancy required |
-|                 | Image                                                        | Windows 10 Pro, Version 20H2 - Gen 1  |
-|                 | Azure Spot instance                                          | Not selected                          |
-|                 | Size                                                         | Standard_D2_v3 - 2vcpus, 8GiB memory  |
-|                 | Username                                                     | TestUser                              |
-|                 | Password                                                     | TestPa$$w0rd!                         |
-|                 | Public inbound ports                                         | Allow selected ports                  |
-|                 | Select inbound ports                                         | RDP (3389)                            |
-|                 | I confirm I have an eligible Windows 10 license with multi-tenant hosting rights. | Selected                              |
-| Disks           | No changes required                                          |                                       |
-| Networking      | Virtual network                                              | CoreServicesVnet                      |
-|                 | Subnet                                                       | DatabaseSubnet (10.20.20.0/24)        |
-|                 | Public IP                                                    | (new) TestVM1-ip                      |
-|                 | NIC network security group                                   | Basic                                 |
-|                 | Public inbound ports                                         | Allow selected ports                  |
-|                 | Select inbound ports                                         | RDP (3389)                            |
-|                 | Load balancing                                               | Not selected                          |
-| Management      | No changes required                                          |                                       |
-| Advanced        | No changes required                                          |                                       |
-| Tags            | No changes required                                          |                                       |
-| Review + create | Review your settings and select Create                       |                                       |
-
-
-6. While the deployment is in progress, you can proceed with creating TestVM2.
-
-### Create TestVM2
-
-1. On the Azure home page, select **Virtual Machines**.
-
-2. In Virtual Machines, select **+ Add &gt; + Start with a preset configuration**.
-
-![Virtual machines with + Add and + Start with a preset configuration highlighted.](../media/add-virtual-machine-preset.png)
-
-3. In Choose recommended defaults that match your workload, under **Select a workload environment**, select **Dev/Test**.
-
-4. Under **Select a workload type**, select **General purpose (D-Series)**, and then select **Continue to create a VM**.
-
-5. Use the information in the following table to create your second VM.
-
-| **Tab**         | **Option**                                                   | **Value**                             |
-| --------------- | ------------------------------------------------------------ | ------------------------------------- |
-| Basics          | Resource group                                               | ContosoResourceGroup                  |
-|                 | Virtual machine name                                         | TestVM2                               |
-|                 | Region                                                       | (US) West US                          |
-|                 | Availability options                                         | No infrastructure redundancy required |
-|                 | Image                                                        | Windows 10 Pro, Version 20H2 - Gen 1  |
-|                 | Azure Spot instance                                          | Not selected                          |
-|                 | Size                                                         | Standard_D2_v3 - 2vcpus, 8GiB memory  |
-|                 | Username                                                     | TestUser                              |
-|                 | Password                                                     | TestPa$$w0rd!                         |
-|                 | Public inbound ports                                         | Allow selected ports                  |
-|                 | Select inbound ports                                         | RDP (3389)                            |
-|                 | I confirm I have an eligible Windows 10 license with multi-tenant hosting rights. | Selected                              |
-| Disks           | No changes required                                          |                                       |
-| Networking      | Virtual network                                              | CoreServicesVnet                      |
-|                 | Subnet                                                       | DatabaseSubnet (10.20.20.0/24)        |
-|                 | Public IP                                                    | (new) TestVM2-ip                      |
-|                 | NIC network security group                                   | Basic                                 |
-|                 | Public inbound ports                                         | Allow selected ports                  |
-|                 | Select inbound ports                                         | RDP (3389)                            |
-|                 | Load balancing                                               | Not selected                          |
-| Management      | No changes required                                          |                                       |
-| Advanced        | No changes required                                          |                                       |
-| Tags            | No changes required                                          |                                       |
-| Review + create | Review your settings and select **Create**                   |                                       |
-
-
-6. When the deployment is complete, go to the Azure portal home page, and then select **Virtual Machines**.
-
-7. Verify that both virtual machines have been created.
+5. Verify that both virtual machines have been created.
 
  
 
@@ -231,13 +157,13 @@ In this section, you will create two test VMs to test the Private DNS zone confi
 
 10. Save the RDP file to your desktop.
 
-11. Connect to TestVM1 using the RDP file, and the username and password you specified when you created the VM.
+11. Connect to TestVM1 using the RDP file, and the username **TestUser** and the password **TestPa$$w0rd!**.
 
-12. Connect to TestVM2 using the RDP file, and the username and password you specified when you created the VM.
+12. Connect to TestVM2 using the RDP file, and the username **TestUser** and the password **TestPa$$w0rd!**.
 
 13. On both VMs, in **Choose privacy settings for your device**, select **Accept**.
 
-14. On both VMs, in **Networks**, select **Yes**.
+14. On both VMs, if prompted, in **Networks**, select **Yes**.
 
 15. On TestVM1, open a command prompt and enter the command ipconfig /all.
 
@@ -245,8 +171,9 @@ In this section, you will create two test VMs to test the Private DNS zone confi
 
 17. Enter the command ping TestVM2.contoso.com.
 
-18. Verify that you receive four replies from TestVM2.
+18. Verify that the FQDN resolves to the IP address that you noted in the Private DNS zone. The ping itself will timeout because of the Windows Firewall that is enabled on the VMs.
 
+19. Alternatively, you can enter the command nslookup TestVM2.contoso.com and verify that you receive a successful name resolution record for VM2
  
 
 Congratulations! You have created a private DNS Zone, added a name resolution and auto-registration link, and tested name resolution in your configuration. 

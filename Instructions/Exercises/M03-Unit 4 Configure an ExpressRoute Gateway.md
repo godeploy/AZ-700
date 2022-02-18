@@ -37,8 +37,8 @@ In this exercise, you will:
    | **Setting**          | **Value**                        |
    | -------------------- | -------------------------------- |
    | Virtual Network Name | CoreServicesVNet                 |
-   | Resource Group       | Resource Group provided by Learn |
-   | Location             | West US                          |
+   | Resource Group       | ContosoResourceGroup             |
+   | Location             | East US                          |
 
 4. Select **Next : IP addresses**.
 
@@ -72,24 +72,19 @@ In this exercise, you will:
    | **Setting**               | **Value**                  |
    | ------------------------- | -------------------------- |
    | **Project details**       |                            |
-   | Subscription              | Provided by Learn          |
-   | Resource Group            | Provided by Learn          |
+   | Resource Group            | ContosoResourceGroup       |
    | **Instance details**      |                            |
    | Name                      | CoreServicesVnetGateway    |
-   | Region                    | West US                    |
+   | Region                    | East US                    |
    | Gateway type              | ExpressRoute               |
-   | VPN type                  | Route-based                |
-   | SKU                       | VpnGw2                     |
-   | Generation                | Generation2                |
+   | SKU                       | Standard                   |
    | Virtual network           | CoreServicesVNet           |
    | **Public IP address**     |                            |
    | Public IP address         | Create new                 |
    | Public IP address name    | CoreServicesVnetGateway-IP |
    | Public IP address SKU     | Basic                      |
    | Assignment                | Not configurable           |
-   | Enable active-active mode | Disabled                   |
-   | Configure BGP             | Disabled                   |
-
+   
 3. Select **Review + Create**.
 
 4. Confirm that the Gateway configuration passes validation and then select **Create**.

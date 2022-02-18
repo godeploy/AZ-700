@@ -28,20 +28,19 @@ This exercise requires two instances of a web application that run in different 
 
 1. Sign in to the Azure portal at [https://portal.azure.com](https://portal.azure.com/).
 
-2. On the Azure Portal home page, select + **Create a resource**.
+2. On the Azure home page, using the global search type **WebApp** and select **App Services** under services.
 
-3. On the Create a resource page, select **WebApp**.
-   ![Azure Portal Create a web app. ](../media/create-a-web-app.png)
+3. Click **+ Create** to create a Web App.
 
 4. On the Create Web App page, on the **Basics** tab, enter or select the following information.
 
    | **Setting**      | **Value**                                                    |
    | ---------------- | ------------------------------------------------------------ |
    | Subscription     | Select your subscription.                                    |
-   | Resource group   | Select the resource group provided by Learn.                 |
+   | Resource group   | Select the resource group ContosoResourceGroup               |
    | Name             | Enter a unique Name for your web app. This example uses WebAppContoso-1. |
    | Publish          | Select **Code**.                                             |
-   | Runtime stack    | Select **.NET Core 2.1 (LTS)**.                              |
+   | Runtime stack    | Select **.NET Core 3.1 (LTS)**.                              |
    | Operating System | Select **Windows**.                                          |
    | Region           | Select **Central US**.                                       |
    | Windows Plan     | Select **Create new** and enter myAppServicePlanCentralUS in the text box. |
@@ -50,19 +49,19 @@ This exercise requires two instances of a web application that run in different 
 5. Select **Review + create**, review the Summary, and then select **Create**.   
    ‎It might take several minutes for the deployment to complete.
 
-6. Create a second web app. On the Azure Portal home page, select + **Create a resource**.
+6. Create a second web app. On the Azure Portal home page, search  **WebApp**.
 
-7. On the Create a resource page, select **WebApp**.
+7. Click **+ Create** to create a Web App.
 
 8. On the Create Web App page, on the **Basics** tab, enter or select the following information.
 
    | **Setting**      | **Value**                                                    |
    | ---------------- | ------------------------------------------------------------ |
    | Subscription     | Select your subscription.                                    |
-   | Resource group   | Select the resource group provided by Learn.                 |
+   | Resource group   | Select the resource group ContosoResourceGroup               |
    | Name             | Enter a unique Name for your web app. This example uses WebAppContoso-2. |
    | Publish          | Select **Code**.                                             |
-   | Runtime stack    | Select **.NET Core 2.1 (LTS)**.                              |
+   | Runtime stack    | Select **.NET Core 3.1 (LTS)**.                              |
    | Operating System | Select **Windows**.                                          |
    | Region           | Select **East US**.                                          |
    | Windows Plan     | Select **Create new** and enter myAppServicePlanEastUS in the text box. |
@@ -86,8 +85,8 @@ Configure Azure Front Door to direct user traffic based on lowest latency betwee
    | **Setting**             | **Value**                                    |
    | ----------------------- | -------------------------------------------- |
    | Subscription            | Select your subscription.                    |
-   | Resource group          | Select the resource group provided by Learn. |
-   | Resource group location | Select **Central US**.                       |
+   | Resource group          | Select ContosoResourceGroup                  |
+   | Resource group location | Accept default setting                       |
 
 4. Select **Next: Configuration**.
 
@@ -102,7 +101,7 @@ Configure Azure Front Door to direct user traffic based on lowest latency betwee
 
    ![Create a Front Door add a backend pool](../media/add-backends.png)
 
-8. Enter a globally unique **host name**, like BackendPool.
+8. Enter a host name, like **BackendPool**.
 
 9. Under **BACKENDS**, select + **Add a backend**.
 
@@ -191,7 +190,9 @@ Once you create a Front Door, it takes a few minutes for the configuration to be
 1. Delete all resource groups you created throughout the labs of this module by running the following command:
 
    ```powershell
-   Remove-AzResourceGroup -Name 'NAME OF THE RG' -Force -AsJob
+
+   Remove-AzResourceGroup -Name 'ContosoResourceGroup' -Force -AsJob
+
    ```
 
     >**Note**: The command executes asynchronously (as determined by the -AsJob parameter), so while you will be able to run another PowerShell command immediately afterwards within the same PowerShell session, it will take a few minutes before the resource groups are actually removed.

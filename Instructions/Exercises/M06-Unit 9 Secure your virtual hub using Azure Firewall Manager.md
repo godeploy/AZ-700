@@ -1,11 +1,11 @@
 ---
 Exercise:
-    title: 'M06-Unit 8 Secure your virtual hub using Azure Firewall Manager'
+    title: 'M06-Unit 9 Secure your virtual hub using Azure Firewall Manager'
     module: 'Module - Design and implement network security'
 ---
 
 
-# M06-Unit 8 Secure your virtual hub using Azure Firewall Manager
+# M06-Unit 9 Secure your virtual hub using Azure Firewall Manager
 
 In this exercise, you will create the spoke virtual network and create a secured virtual hub, then you will connect the hub and spoke virtual networks and route traffic to your hub. Next you will deploy the workload servers, then create a firewall policy and secure your hub, and finally you will test the firewall.
 
@@ -24,13 +24,13 @@ In this exercise, you will:
 + Task 7: Route traffic to your hub
 + Task 8: Test the application rule
 + Task 9: Test the network rule
-+ Task 10: Clean up resrources 
++ Task 10: Clean up resources
 
 ## Task 1: Create two spoke virtual networks and subnets
 
 In this task, you will create the two spoke virtual networks each containing a subnet that will host your workload servers. 
 
-1. On the Azure portal home page, select **Create a resource**, then in the search box, type **virtual network** and select **Virtual Network** when it appears.
+1. On the Azure portal home page, in the search box, type **virtual network** and select **Virtual Network** when it appears.
 2. Click **Create**.
 3. In **Resource group**, select **Create new**, and enter **fw-manager-rg** as the name and click **OK**.
 4. In **Name**, enter **Spoke-01**.
@@ -61,7 +61,7 @@ In this task you will create your secured virtual hub using Firewall Manager.
 
 2. In the search box, type **firewall manager** and select **Firewall Manager** when it appears.
 
-3. On the **Firewall Manager** page, click **View secured virtual hubs**.
+3. On the **Firewall Manager** page, from the Overview page, click **View secured virtual hubs**.
 
 4. On the **Virtual hubs** page, click **Create new secured virtual hub**.
 
@@ -69,7 +69,7 @@ In this task you will create your secured virtual hub using Firewall Manager.
 
 6. For **Region**, select your region.
 
-7. For the **S** **ecured virtual hub name**, enter **Hub-01**.
+7. For the **Secured virtual hub name**, enter **Hub-01**.
 
 8. For **Hub address space**, enter **10.2.0.0/16**.
 
@@ -128,63 +128,23 @@ In this task you will connect the hub and spoke virtual networks. This is common
 
 ## Task 4: Deploy the servers
 
-In this task you will deploy the two workload servers.
+1. In the Azure portal, open the **PowerShell** session within the **Cloud Shell** pane.
 
-1. From the Azure portal home page, click **Create a resource**.
+2. In the toolbar of the Cloud Shell pane, select the Upload/Download files icon, in the drop-down menu, select Upload and upload the following files **FirewallManager.json** and **FirewallManager.parameters.json** into the Cloud Shell home directory from the source folder **F:\Allfiles\Exercises\M06**.
 
-2. In the Popular offers list, select **Windows Server Datacenter 2019**.
+3. Deploy the following ARM templates to create the VM needed for this exercise:
 
-3. On the **Create a virtual machine** page, on the **Basics** tab, create a new VM using the information in the table below.
+   ```powershell
+   $RGName = "fw-manager-rg"
+   
+   New-AzResourceGroupDeployment -ResourceGroupName $RGName -TemplateFile FirewallManager.json -TemplateParameterFile FirewallManager.parameters.json
+   ```
+  
+4. When the deployment is complete, go to the Azure portal home page, and then select **Virtual Machines**.
 
-   | **Setting**          | **Value**                |
-   | -------------------- | ------------------------ |
-   | Subscription         | Select your subscription |
-   | Resource group       | **fw-manager-rg**        |
-   | Virtual machine name | **Srv-workload-01**      |
-   | Region               | Your region              |
-   | Username             | **MyAdmin**              |
-   | Password             | **TestPa$$w0rd!**        |
-   | Confirm password     | **TestPa$$w0rd!**        |
-   | Public inbound ports | **None**                 |
+5. On the **Overview** page of **Srv-workload-01**, in the right-hand pane, under the **Networking** section, note down the **Private IP address** (e.g., **10.0.1.4**).
 
-4. Click **Next : Disks**.
-
-5. Click **Next : Networking**.
-
-6. In **Virtual network**, ensure that **Spoke-01** is selected.
-
-7. In **Subnet**, ensure that **Workload-01-SN** is selected. 
-
-8. In **Public IP**, select **None**.
-
-9. Click **Next : Management**.
-
-10. Under **Monitoring**, in **Boot diagnostics**, click **Disable**.
-
-11. Click **Review + create**.
-
-12. Click **Create**.
-
-13. When this deployment has completed, click **Create another VM**.
-
-14. Repeat steps **3 to 12** above to create another virtual machine but using the following information:
-
-    - Virtual machine name: **Srv-workload-02**
-    - Virtual network: **Spoke-02**
-    - Subnet: **Workload-02-SN**
-    - Public IP: **None**
-
-15. When deployment of the second VM has completed, click **Go to resource**.
-
-16. On the **Overview** page of **Srv-workload-02**, in the right-hand pane, under the **Networking** section, note down the **Private IP address** (e.g., **10.1.1.4**).
-
-17. Click **Home**.
-
-18. On the Azure portal home page, click **All resources**.
-
-19. Click the **Srv-workload-01** virtual machine.
-
-20. On the **Overview** page of **Srv-workload-01**, in the right-hand pane, under the **Networking** section, note down the **Private IP address** (e.g., **10.0.1.4**).
+6. On the **Overview** page of **Srv-workload-02**, in the right-hand pane, under the **Networking** section, note down the **Private IP address** (e.g., **10.1.1.4**).
 
 
 ## Task 5: Create a firewall policy and secure your hub
@@ -194,7 +154,7 @@ In this task you will first create your firewall policy, then secure your hub. T
 1. From the Azure portal home page, click **Firewall Manager**.
    - If the Firewall Manager icon does not appear on the homepage, then click **All services**. Then in the search box, type **firewall manager** and select **Firewall Manager** when it appears.
 
-2. From **Firewall Manager**, click **View Azure Firewall Policies**.
+2. From **Firewall Manager**, from the Overview page, click **View Azure Firewall Policies**.
 
 3. Click **Create Azure Firewall Policy**.
 
@@ -204,7 +164,9 @@ In this task you will first create your firewall policy, then secure your hub. T
 
 6. In **Region** select your region.
 
-7. Click **Next : DNS Settings**.
+7. In **Policy tier**, select **Standard**.
+
+8. Click **Next : DNS Settings**.
 
 8. Click **Next : TLS Inspection (preview)**.
 
@@ -224,7 +186,7 @@ In this task you will first create your firewall policy, then secure your hub. T
 
 16. For the **Source type**, select **IP Address**.
 
-17. For **Source**, enter *****.
+17. For **Source**, enter *.
 
 18. For **Protocol**, enter **http,https**.
 
@@ -248,7 +210,7 @@ In this task you will first create your firewall policy, then secure your hub. T
 
 27. For the **Source type**, select **IP Address**.
 
-28. For **Source**, enter *****.
+28. For **Source**, enter *.
 
 29. For **Protocol**, select **TCP**.
 
@@ -278,7 +240,7 @@ In this task you will first create your firewall policy, then secure your hub. T
 
 42. For the **Source type**, select **IP Address**.
 
-43. For **Source**, enter *****.
+43. For **Source**, enter *.
 
 44. For **Protocol**, select **TCP**.
 
@@ -394,7 +356,7 @@ In this task you will test the network rule to confirm that it works as expected
 7. Close both RDP sessions to disconnect them.
 
 
-## Task 10: Clean up resrources 
+## Task 10: Clean up resources 
 
 >**Note**: Remember to remove any newly created Azure resources that you no longer use. Removing unused resources ensures you will not see unexpected charges.
 
@@ -403,7 +365,7 @@ In this task you will test the network rule to confirm that it works as expected
 1. Delete all resource groups you created throughout the labs of this module by running the following command:
 
    ```powershell
-   Remove-AzResourceGroup -Name 'NAME OF THE RG' -Force -AsJob
+   Remove-AzResourceGroup -Name 'fw-manager-rg' -Force -AsJob
    ```
 
     >**Note**: The command executes asynchronously (as determined by the -AsJob parameter), so while you will be able to run another PowerShell command immediately afterwards within the same PowerShell session, it will take a few minutes before the resource groups are actually removed.

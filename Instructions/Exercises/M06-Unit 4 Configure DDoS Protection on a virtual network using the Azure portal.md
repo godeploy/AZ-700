@@ -17,6 +17,7 @@ In this exercise, you will:
 + Task 5: Configure DDoS diagnostic logs
 + Task 6: Configure DDoS alerts
 + Task 7: Submit a DDoS service request to run a DDoS attack
++ Task 8: Clean up resources
 
 
 
@@ -26,37 +27,29 @@ In this exercise, you will:
 
 2. On the Azure portal home page, select **Resource groups**.
 
-3. Click **Create**. 
+3. Select **Create**. 
 
 4. On the **Basics** tab, in **Resource group**, enter **MyResourceGroup**.
 
-5. In **Region**, select your region from the list.
+5. In **Region**, select East US.
 
-6. Click **Review + create**.
+6. Select **Review + create**.
 
-   ![Create Resource Group](../media/create-resource-group-ddos-protection-plan.png)
+7. Select **Create**.
 
-7. Click **Create**.
 
-   ![End state when creating a resource group](../media/create-resource-group-end.png)
-
- 
 
 ## Task 2: Create a DDoS Protection plan
 
-1. On the Azure portal home page, select **Create a resource**, then in the search box, type **DDoS** and click **DDoS protection plan** when it appears.
+1. On the Azure portal home page, in the search box type **DDoS** and select **DDoS protection plan** when it appears.
 
-   ![Start point of creating a DDoS protection plan](../media/create-ddos-protection-plan-start.png)
-
-2. Click **Create**.
+2. Select **+ Create**.
 
 3. On the **Basics** tab, in the **Resource group** list, select the resource group you just created.
 
-4. In the **Instance name** box, type **MyDdoSProtectionPlan**, then click **Review + create**.
+4. In the **Instance name** box, type **MyDdoSProtectionPlan**, then select **Review + create**.
 
-   ![Create DDoS protection plan](../media/create-ddos-protection-plan-new.png)
-
-5. Click **Create**.
+5. Select **Create**.
 
  
 
@@ -64,17 +57,13 @@ In this exercise, you will:
 
 Here you will enable DDoS on a new virtual network rather than on an existing one, so first you need to create the new virtual network, then enable DDoS protection on it using the plan you created previously.
 
-1. On the Azure portal home page, select **Create a resource**, then in the search box, type **Virtual Network**, then click **Virtual Network** when it appears.
+1. On the Azure portal home page, select **Create a resource**, then in the search box, type **Virtual Network**, then select **Virtual Network** when it appears.
 
-   ![Start point for creating a virtual network](../media/create-virtual-network-basics-for-ddos-protection-start.png)
-
-2. On the **Virtual Network** page, click **Create**.
+2. On the **Virtual Network** page, select **Create**.
 
 3. On the **Basics** tab, select the resource group you created previously.
 
 4. In the **Name** box, type **MyVirtualNetwork**, then click the **Security** tab. 
-
-   ![Create virtual network - Basics tab](../media/create-virtual-network-basics-for-ddos-protection.png)
 
 5. On the **Security** tab, next to **DDoS Protection Standard**, select **Enable**.
 
@@ -102,7 +91,7 @@ You create a Public IP address, and then set up telemetry in the next steps.
 
 5. Under **IP address assignment**, select **Static**.
 
-6. In **DNS name label**, type **mypublicdns**.
+6. In **DNS name label**, type **mypublicdnsxx** (where xx is your initials to make this unique).
 
 7. Select your resource group from the list.
 
@@ -173,21 +162,17 @@ In this step you will create a virtual machine, assign a public IP address to it
    | Virtual machine name  | **MyVirtualMachine**                                         |
    | Region                | Your region                                                  |
    | Availability options  | **No infrastructure  redundancy required**                   |
-   | Image                 | **Ubuntu Server 18.04 LTS -  Gen 1**                         |
-   | Size                  | Select **See  all sizes**, then choose **B1ls** in the  list and choose **Select**  **(Standard_B1ls - 1 vcpu,  0.5 GiB memory (£3.21/month)** |
+   | Image                 | **Ubuntu Server 18.04 LTS -  Gen 1** (Select Configure VM Generation link if needed) |                     
+   | Size                  | Select **See  all sizes**, then choose **B1ls** in the  list and choose **Select**  **(Standard_B1ls - 1 vcpu,  0.5 GiB memory** |
    | Authentication type   | **SSH public key**                                           |
    | Username              | **azureuser**                                                |
    | SSH public key source | **Generate new key pair**                                    |
    | Key pair name         | **myvirtualmachine-ssh-key**                                 |
 
 
-
-
 4. Click **Review + create**.
 
 5. Click **Create**.
-
-   ![Create virtual machine page](../media/create-virtual-machine-to-test-ddos.png)
 
 6. In the **Generate new key pair** dialog box, click **Download private key and create resource**.
 
@@ -199,7 +184,7 @@ In this step you will create a virtual machine, assign a public IP address to it
 
 1. On the **Overview** page of the new virtual machine, under **Settings**, click **Networking**.
 
-2. Next to **Network Interface**, click **myvirtualmachine**xxx (e.g., myvirtualmachine892).
+2. Next to **Network Interface**, click **myvirtualmachine-nic**.
 
 3. Under **Settings**, click **IP configurations**.
 
@@ -255,7 +240,8 @@ In this step you will create a virtual machine, assign a public IP address to it
 
 1. Create an account with [BreakingPoint Cloud](https://breakingpoint.cloud/)
 
-2. Set up your DDoS test as per the settings in the screenshot below, but specifying the IP address of your own **MyPublicIPAddress** resource in the **Target IP Address** box (e.g., **51.140.137.219**)
+2. Set up your DDoS test as per the settings in the screenshot below (you may need to select the 100k pps test size with the trial account), but specifying the IP address of your own **MyPublicIPAddress** resource in the **Target IP Address** box (e.g., **51.140.137.219**)
+   ![DDOSAttack](https://user-images.githubusercontent.com/46939028/138599420-58bef33a-2597-4fa2-919f-bf1614037bc3.JPG)
 
    ![DDoS Test Setup](../media/ddos-test-setup.png)
 
@@ -265,8 +251,21 @@ In this step you will create a virtual machine, assign a public IP address to it
 
 5. In the **Metric** box, select **Under DDoS attack or not** from the list.
 
-6. And here you can see DDoS attack as it happened.
+6. And here you can see DDoS attack as it happened. Note it may take the full 10 minutes before you see the results.
 
    ![Metrics showing resource under DDoS attack](../media/metrics-showing-resource-under-attack.png)
 
  
+## Task 8: Clean up resources
+
+>**Note**: Remember to remove any newly created Azure resources that you no longer use. Removing unused resources ensures you will not see unexpected charges.
+
+1. In the Azure portal, open the **PowerShell** session within the **Cloud Shell** pane.
+
+1. Delete all resource groups you created throughout the labs of this module by running the following command:
+
+   ```powershell
+   Remove-AzResourceGroup -Name 'MyResourceGroup' -Force -AsJob
+   ```
+
+    >**Note**: The command executes asynchronously (as determined by the -AsJob parameter), so while you will be able to run another PowerShell command immediately afterwards within the same PowerShell session, it will take a few minutes before the resource groups are actually removed.

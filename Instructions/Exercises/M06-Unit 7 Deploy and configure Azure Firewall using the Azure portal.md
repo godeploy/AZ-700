@@ -1,10 +1,10 @@
 ---
 Exercise:
-    title: 'M06-Unit 6 Deploy and configure Azure Firewall using the Azure portal'
+    title: 'M06-Unit 7 Deploy and configure Azure Firewall using the Azure portal'
     module: 'Module - Design and implement network security '
 ---
 
-# M06-Unit 6 Deploy and configure Azure Firewall using the Azure portal
+# M06-Unit 7 Deploy and configure Azure Firewall using the Azure portal
 
 Being part of the Network Security team at Contoso, your next task is to create firewall rules to allow/deny access to certain websites. The following steps walk you through creating a resource group, a virtual network and subnets, and a virtual machine as environment preparation tasks, and then deploying a firewall and firewall policy, configuring default routes and application, network and DNAT rules, and finally testing the firewall.
 
@@ -20,7 +20,7 @@ In this exercise, you will:
 + Task 8: Configure a Destination NAT (DNAT) rule
 + Task 9: Change the primary and secondary DNS address for the server's network interface
 + Task 10: Test the firewall
-
++ Task 11: Clean up resources
 
 
 ## Task 1: Create a resource group
@@ -49,7 +49,7 @@ In this task, you will create a new resource group.
 
 In this task, you will create a single virtual network with two subnets.
 
-1. On the Azure portal home page, select **Create a resource**, then in the search box, type **virtual network** and select **Virtual Network** when it appears.
+1. On the Azure portal home page, in the search box, type **virtual network** and select **Virtual Network** when it appears.
 
 2. Click **Create**.
 
@@ -59,7 +59,7 @@ In this task, you will create a single virtual network with two subnets.
 
    ![Create a virtual network - Basics tab](../media/create-vnet-basics-for-azure-firewall.png)
 
-5. Click **Next: IP Addresses**.
+5. Click **Next: IP Addresses**. Enter IPv4 address space 10.0.0.0/16 if not already there by default. 
 
 6. Under **Subnet name**, click the word **default**.
 
@@ -69,17 +69,16 @@ In this task, you will create a single virtual network with two subnets.
 
 9. Click **Save**.
 
-   ![Create a virtual network - edit subnet](../media/edit-default-subnet-for-firewall.png)
-
 10. Click **Add subnet**, to create another subnet, which will host the workload server that you will create shortly.
 
+
+    ![Add subnet](../media/add-workload-subnet.png)
+    
 11. In the **Edit subnet** dialog box, change the name to **Workload-SN**.
 
 12. Change the **Subnet address range** to **10.0.2.0/24**.
 
 13. Click **Add**.
-
-    ![Add subnet](../media/add-workload-subnet.png)
 
 14. Click **Review + create**.
 
@@ -91,49 +90,25 @@ In this task, you will create a single virtual network with two subnets.
 
 In this task, you will create the workload virtual machine and place it in the Workload-SN subnet created previously.
 
-1. On the Azure portal home page, select **Create a resource**, then in the search box, type **virtual machine** and select **Virtual machine** when it appears.
+1. In the Azure portal, open the **PowerShell** session within the **Cloud Shell** pane.
 
-2. On the **Virtual machine** page, click **Create**.
+2. In the toolbar of the Cloud Shell pane, select the Upload/Download files icon, in the drop-down menu, select Upload and upload the following files **firewall.json** and **firewall.parameters.json** into the Cloud Shell home directory from the source folder **F:\Allfiles\Exercises\M06**.
 
-3. On the **Basics** tab, create a new VM using the information in the table below.
+3. Deploy the following ARM templates to create the VM needed for this exercise:
 
-   | **Setting**          | **Value**                                                    |
-   | -------------------- | ------------------------------------------------------------ |
-   | Subscription         | Select your subscription                                     |
-   | Resource group       | **Test-FW-RG**                                               |
-   | Virtual machine name | **Srv-Work**                                                 |
-   | Region               | Your region                                                  |
-   | Availability options | **No infrastructure redundancy required**                    |
-   | Image                | **Windows Server 2016 Datacenter - Gen 1**                   |
-   | Size                 | Select **See all sizes**, then choose **B1s** in the list and choose **Select** <br /><br />**(Standard_B1s - 1 vcpu, 1 GiB memory (£8.60/month)** |
-   | Username             | **MyAdmin**                                                  |
-   | Password             | **TestPa$$w0rd!**                                            |
-   | Confirm password     | **TestPa$$w0rd!**                                            |
-   | Public inbound ports | Select **None**                                              |
+   ```powershell
+   $RGName = "Test-FW-RG"
+   
+   New-AzResourceGroupDeployment -ResourceGroupName $RGName -TemplateFile firewall.json -TemplateParameterFile firewall.parameters.json
+   ```
+  
+4. When the deployment is complete, go to the Azure portal home page, and then select **Virtual Machines**.
 
+5. Verify that the virtual machine has been created.
 
-   ![Create a virtual machine - Basics tab](../media/create-vm-for-azure-firewall-test-basics.png)
+6. When deployment of the VM completes, select **Go to resource**.
 
-4. Click **Next : Disks**.
-
-5. Click **Next : Networking**.
-
-6. Ensure that **Test-FW-VN** is selected for the virtual network and the subnet is **Workload-SN**.
-
-7. For **Public IP**, select **None**.
-
-8. Click **Next : Management**.
-
-9. Under **Monitoring**, set **Boot diagnostics** to **Disable**.
-
-10. Click **Review + create**.
-
-11. Click **Create**.
-
-12. When deployment of the VM completes, click **Go to resource**.
-
-13. On the **Overview** page of **Srv-Work**, on the right of the page under **Networking**, take a note of the **Private IP address** for this VM (e.g., **10.0.2.4**).
-
+7. On the **Overview** page of **Srv-Work**, on the right of the page under **Networking**, take a note of the **Private IP address** for this VM (e.g., **10.0.2.4**).
  
 
 ## Task 4: Deploy the firewall and firewall policy
@@ -150,7 +125,7 @@ In this task, you will deploy the firewall into the virtual network with a firew
    | -------------------- | ------------------------------------------------------------ |
    | Subscription         | Select your subscription                                     |
    | Resource group       | **Test-FW-RG**                                               |
-   | Virtual machine name | **Test-FW01**                                                |
+   | Firewall name        | **Test-FW01**                                                |
    | Region               | Your region                                                  |
    | Firewall tier        | **Standard**                                                 |
    | Firewall management  | **Use a Firewall Policy to manage this firewall**            |
@@ -323,7 +298,7 @@ In this task, you will add a DNAT rule that allows you to connect a remote deskt
    | **Rules Section**     |                                                              |
    | Name                  | **rdp-nat**                                                  |
    | Source type           | **IP Address**                                               |
-   | Source                | *****                                                        |
+   | Source                | *                                                            |
    | Protocol              | **TCP**                                                      |
    | Destination Ports     | **3389**                                                     |
    | Destination Type      | **IP Address**                                               |
@@ -372,7 +347,7 @@ In this final task, you will test the firewall to verify that the rules are conf
 
 2. In the **Computer** box, enter the firewall's public IP address (e.g., **20.90.136.51**) followed by **:3389** (e.g., **20.90.136.51:3389**).
 
-3. In the **Username** box, enter **MyAdmin**.
+3. In the **Username** box, enter **TestUser**.
 
 4. Click **Connect**.
 
@@ -401,3 +376,16 @@ In this final task, you will test the firewall to verify that the rules are conf
     ![RDP session on Srv-work server - browser blocked on microsoft.com](../media/remote-desktop-connection-3.png)
 
  
+## Task 11: Clean up resources 
+
+>**Note**: Remember to remove any newly created Azure resources that you no longer use. Removing unused resources ensures you will not see unexpected charges.
+
+1. In the Azure portal, open the **PowerShell** session within the **Cloud Shell** pane.
+
+1. Delete all resource groups you created throughout the labs of this module by running the following command:
+
+   ```powershell
+   Remove-AzResourceGroup -Name 'Test-FW-RG' -Force -AsJob
+   ```
+
+    >**Note**: The command executes asynchronously (as determined by the -AsJob parameter), so while you will be able to run another PowerShell command immediately afterwards within the same PowerShell session, it will take a few minutes before the resource groups are actually removed.
